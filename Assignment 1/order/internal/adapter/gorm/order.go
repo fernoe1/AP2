@@ -9,13 +9,8 @@ type OrderRepository struct {
 	Db *gorm.DB
 }
 
-func (r *OrderRepository) UpdateOrder(order domain.Order) (*domain.Order, error) {
-	result := r.Db.Save(&order)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return &order, nil
+func (r *OrderRepository) UpdateOrder(order *domain.Order) error {
+	return r.Db.Save(order).Error
 }
 
 func (r *OrderRepository) FetchOrder(id uint) (*domain.Order, error) {
@@ -23,14 +18,13 @@ func (r *OrderRepository) FetchOrder(id uint) (*domain.Order, error) {
 		order domain.Order
 	)
 
-	result := r.Db.First(&order, id)
-	if result.Error != nil {
-		return nil, result.Error
+	if err := r.Db.First(&order, id).Error; err != nil {
+		return nil, err
 	}
 
 	return &order, nil
 }
 
-func (r *OrderRepository) SaveOrder(order domain.Order) error {
-	return r.Db.Create(&order).Error
+func (r *OrderRepository) SaveOrder(order *domain.Order) error {
+	return r.Db.Create(order).Error
 }

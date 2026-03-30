@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fernoe1/AP2/assignment-1/gate/internal/adapter/http/server"
+	server "github.com/fernoe1/AP2/assignment-1/gate/internal/adapter/http"
 	"github.com/fernoe1/AP2/assignment-1/gate/internal/route"
 )
 

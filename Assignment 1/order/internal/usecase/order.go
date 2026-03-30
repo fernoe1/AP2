@@ -15,14 +15,14 @@ func (uc *OrderUsecase) CancelOrder(id uint) (*domain.Order, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if order.Status != "Pending" {
 		return nil, errors.New("order is not pending")
 	}
 
 	order.Status = "Cancelled"
 
-	_, err = uc.OrderRepository.UpdateOrder(*order)
-	if err != nil {
+	if err := uc.OrderRepository.UpdateOrder(order); err != nil {
 		return nil, err
 	}
 
@@ -33,7 +33,7 @@ func (uc *OrderUsecase) GetOrder(id uint) (*domain.Order, error) {
 	return uc.OrderRepository.FetchOrder(id)
 }
 
-func (uc *OrderUsecase) CreateOrder(order domain.Order) error {
+func (uc *OrderUsecase) CreateOrder(order *domain.Order) error {
 	order.Status = "Pending"
 
 	return uc.OrderRepository.SaveOrder(order)

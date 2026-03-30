@@ -37,7 +37,7 @@ func (h *OrderHandler) Patch(c *gin.Context) {
 			return
 		}
 
-		rb.Response(http.StatusInternalServerError, err.Error(), nil)
+		rb.Response(http.StatusBadRequest, err.Error(), nil)
 
 		return
 	}
@@ -63,11 +63,13 @@ func (h *OrderHandler) Post(c *gin.Context) {
 		Amount:     opDTO.Amount,
 	}
 
-	if err := h.OrderUsecase.CreateOrder(order); err != nil {
+	if err := h.OrderUsecase.CreateOrder(&order); err != nil {
 		rb.Response(http.StatusInternalServerError, err.Error(), nil)
 
 		return
 	}
+
+	rb.Response(http.StatusCreated, "ok", order)
 }
 
 func (h *OrderHandler) Get(c *gin.Context) {

@@ -9,18 +9,18 @@ import (
 	"syscall"
 	"time"
 
-	DB "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/gorm"
-	server "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http"
-	"github.com/fernoe1/AP2/assignment-1/order/internal/route"
-	"github.com/fernoe1/AP2/assignment-1/order/internal/usecase"
-	"github.com/fernoe1/AP2/assignment-1/order/migration"
+	DB "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/gorm"
+	server "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/route"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/usecase"
+	"github.com/fernoe1/AP2/assignment-1/payment/migration"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func Start() {
 	// database
-	dsn := "host=localhost user=postgres password=130924 dbname=order port=1987 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := "host=localhost user=postgres password=130924 dbname=payment port=1987 sslmode=disable TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
@@ -28,24 +28,24 @@ func Start() {
 	migration.Migrate(db)
 
 	// repository
-	orderRepository := DB.OrderRepository{Db: db}
+	paymentRepository := DB.PaymentRepository{Db: db}
 
 	// usecase
-	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository}
+	paymentUsecase := usecase.PaymentUsecase{PaymentRepository: &paymentRepository}
 
 	// route
 	r := route.InitRoute()
-	route.RegisterOrderRoute(r, &orderUc)
+	route.RegisterPaymentRoute(r, &paymentUsecase)
 
 	// server
-	srv := server.InitServer(":8081", r)
+	srv := server.InitServer(":8082", r)
 
 	start(&srv)
 }
 
 func start(srv *http.Server) {
 	go func() {
-		log.Println("order starting at", srv.Addr)
+		log.Println("payment starting at", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil {
 			log.Fatal(err)
 		}
