@@ -6,7 +6,7 @@ import (
 
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http/dto"
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/domain"
-	"github.com/fernoe1/AP2/assignment-1/payment/util"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/util"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

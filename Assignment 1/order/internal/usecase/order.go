@@ -10,6 +10,16 @@ type OrderUsecase struct {
 	OrderRepository domain.OrderRepository
 }
 
+func (uc *OrderUsecase) UpdateStatus(order *domain.Order, status string) error {
+	if status == "Authorized" {
+		order.Status = "Paid"
+	} else {
+		order.Status = "Declined"
+	}
+
+	return uc.OrderRepository.UpdateOrder(order)
+}
+
 func (uc *OrderUsecase) CancelOrder(id uint) (*domain.Order, error) {
 	order, err := uc.GetOrder(id)
 	if err != nil {

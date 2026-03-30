@@ -4,6 +4,7 @@ type OrderUsecase interface {
 	CreateOrder(order *Order) error
 	GetOrder(id uint) (*Order, error)
 	CancelOrder(id uint) (*Order, error)
+	UpdateStatus(order *Order, status string) error
 }
 
 type OrderRepository interface {
