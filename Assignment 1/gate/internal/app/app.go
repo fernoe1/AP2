@@ -10,19 +10,23 @@ import (
 	"time"
 
 	"github.com/fernoe1/AP2/assignment-1/gate/internal/adapter/http/server"
+	"github.com/fernoe1/AP2/assignment-1/gate/internal/route"
 )
 
-type App struct {
-	server http.Server
+func Start() {
+	// route
+	r := route.InitRoute()
+
+	// server
+	srv := server.InitServer(":8080", r)
+
+	start(&srv)
 }
 
-func InitApp(addr string) *App {
-	return &App{server: server.InitServer(addr)}
-}
-
-func (a *App) Start() {
+func start(srv *http.Server) {
 	go func() {
-		if err := a.server.ListenAndServe(); err != nil {
+		log.Println("gate starting at", srv.Addr)
+		if err := srv.ListenAndServe(); err != nil {
 			log.Fatal(err)
 		}
 	}()
@@ -31,16 +35,16 @@ func (a *App) Start() {
 	signal.Notify(shutdownCh, syscall.SIGINT, syscall.SIGTERM)
 	<-shutdownCh
 
-	a.close()
+	shutdown(srv)
 }
 
-func (a *App) close() {
+func shutdown(srv *http.Server) {
 	log.Println("shutting down server")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := a.server.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil {
 		log.Println("server forced to shutdown:", err)
 	}
 

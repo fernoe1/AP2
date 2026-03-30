@@ -5,6 +5,5 @@ import (
 )
 
 func main() {
-	a := app.InitApp(":8080")
-	a.Start()
+	app.Start()
 }
