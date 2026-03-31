@@ -10,7 +10,8 @@ import (
 	"time"
 
 	DB "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/gorm"
-	server "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http"
+	CLIENT "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/client"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/server"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/route"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/usecase"
 	"github.com/fernoe1/AP2/assignment-1/order/migration"
@@ -30,8 +31,11 @@ func Start() {
 	// repository
 	orderRepository := DB.OrderRepository{Db: db}
 
+	// client
+	client := CLIENT.InitClient()
+
 	// usecase
-	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository}
+	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository, OrderClient: client}
 
 	// route
 	r := route.InitRoute()

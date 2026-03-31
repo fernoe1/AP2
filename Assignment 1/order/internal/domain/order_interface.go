@@ -12,3 +12,7 @@ type OrderRepository interface {
 	FetchOrder(id uint) (*Order, error)
 	UpdateOrder(order *Order) error
 }
+
+type OrderClient interface {
+	GetOrderPaymentStatus(order *Order) (string, error)
+}

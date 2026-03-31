@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/handler"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/server/handler"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/domain"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/middleware"
 	"github.com/gin-gonic/gin"
