@@ -35,3 +35,10 @@ Each service is also doing his own part; order for ordering, payment for paying.
 
 # failure handling
 Errors are propogated from repositories up to http handlers, if an error occurs its automatically returned to the respective http handler and handled using custom response function.
+
+# diagram
+![diagram](diagram.png)
+
+# api examples
+![api1](API1.png)
+![api2](API2.png)
