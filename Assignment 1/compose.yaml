@@ -1,0 +1,32 @@
+services:
+  order-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 130924
+      POSTGRES_DB: order
+    ports:
+      - "1987:5432"
+
+  payment-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 130924
+      POSTGRES_DB: payment
+    ports:
+      - "1988:5432"
+
+  order:
+    build: ./order
+    depends_on:
+      - order-db
+    ports:
+      - "8081:8081"
+
+  payment:
+    build: ./payment
+    depends_on:
+      - payment-db
+    ports:
+      - "8082:8082"

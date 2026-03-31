@@ -29,7 +29,7 @@ func (c *Client) GetOrderPaymentStatus(order *domain.Order) (string, error) {
 	paymentJson, _ := json.Marshal(paymentDto)
 
 	resp, err := c.C.Post(
-		"http://localhost:8082/payments",
+		"http://payment:8082/payments",
 		"application/json",
 		bytes.NewBuffer(paymentJson),
 	)

@@ -21,7 +21,7 @@ import (
 
 func Start() {
 	// database
-	dsn := "host=localhost user=postgres password=130924 dbname=order port=1987 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := "host=order-db user=postgres password=130924 dbname=order port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
