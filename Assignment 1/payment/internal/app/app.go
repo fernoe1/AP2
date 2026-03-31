@@ -10,7 +10,7 @@ import (
 	"time"
 
 	DB "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/gorm"
-	server "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http"
+	SERVER "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http/server"
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/route"
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/usecase"
 	"github.com/fernoe1/AP2/assignment-1/payment/migration"
@@ -38,7 +38,7 @@ func Start() {
 	route.RegisterPaymentRoute(r, &paymentUsecase)
 
 	// server
-	srv := server.InitServer(":8082", r)
+	srv := SERVER.InitServer(":8082", r)
 
 	start(&srv)
 }

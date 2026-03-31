@@ -8,13 +8,14 @@ import (
 
 type OrderUsecase struct {
 	OrderRepository domain.OrderRepository
+	OrderClient     domain.OrderClient
 }
 
 func (uc *OrderUsecase) UpdateStatus(order *domain.Order, status string) error {
 	if status == "Authorized" {
 		order.Status = "Paid"
 	} else {
-		order.Status = "Declined"
+		order.Status = "Failed"
 	}
 
 	return uc.OrderRepository.UpdateOrder(order)
@@ -46,5 +47,14 @@ func (uc *OrderUsecase) GetOrder(id uint) (*domain.Order, error) {
 func (uc *OrderUsecase) CreateOrder(order *domain.Order) error {
 	order.Status = "Pending"
 
-	return uc.OrderRepository.SaveOrder(order)
+	if err := uc.OrderRepository.SaveOrder(order); err != nil {
+		return err
+	}
+
+	status, err := uc.OrderClient.GetOrderPaymentStatus(order)
+	if err != nil {
+		return err
+	}
+
+	return uc.UpdateStatus(order, status)
 }
