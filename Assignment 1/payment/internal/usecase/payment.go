@@ -7,7 +7,7 @@ import (
 )
 
 type PaymentUsecase struct {
-	PaymentRepository domain.PaymentRepository
+	PaymentRepository PaymentRepository
 }
 
 func (uc *PaymentUsecase) GetPaymentFromOrderId(orderId string) ([]*domain.Payment, error) {

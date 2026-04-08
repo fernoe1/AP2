@@ -35,7 +35,7 @@ func Start() {
 
 	// route
 	r := route.InitRoute()
-	route.RegisterPaymentRoute(r, &paymentUsecase)
+	route.RegisterPaymentRoute(r, paymentUsecase)
 
 	// server
 	srv := SERVER.InitServer(":8082", r)

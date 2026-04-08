@@ -13,7 +13,7 @@ import (
 )
 
 type OrderHandler struct {
-	OrderUsecase domain.OrderUsecase
+	OrderUsecase OrderUsecase
 }
 
 func (h *OrderHandler) Patch(c *gin.Context) {

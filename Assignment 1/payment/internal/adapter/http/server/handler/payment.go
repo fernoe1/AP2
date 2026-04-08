@@ -12,7 +12,7 @@ import (
 )
 
 type PaymentHandler struct {
-	PaymentUsecase domain.PaymentUsecase
+	PaymentUsecase PaymentUsecase
 }
 
 func (h *PaymentHandler) Get(c *gin.Context) {

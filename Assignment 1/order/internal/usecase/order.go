@@ -3,12 +3,13 @@ package usecase
 import (
 	"errors"
 
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/client"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/domain"
 )
 
 type OrderUsecase struct {
-	OrderRepository domain.OrderRepository
-	OrderClient     domain.OrderClient
+	OrderRepository OrderRepository
+	OrderClient     client.OrderClient
 }
 
 func (uc *OrderUsecase) UpdateStatus(order *domain.Order, status string) error {
