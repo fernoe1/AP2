@@ -1,8 +1,9 @@
-package client
+package http
 
 import "C"
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -20,7 +21,7 @@ func InitClient() *Client {
 	return &Client{C: &http.Client{Timeout: 2 * time.Second}}
 }
 
-func (c *Client) GetOrderPaymentStatus(order *domain.Order) (string, error) {
+func (c *Client) GetOrderPaymentStatus(ctx context.Context, order *domain.Order) (string, error) {
 	paymentDto := dto.Payment{
 		OrderID: strconv.Itoa(int(order.ID)),
 		Amount:  order.Amount,

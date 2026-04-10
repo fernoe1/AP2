@@ -22,7 +22,7 @@ func (h *PaymentHandler) Get(c *gin.Context) {
 
 	orderId := c.Param("order_id")
 
-	payment, err := h.PaymentUsecase.GetPaymentFromOrderId(orderId)
+	payment, err := h.PaymentUsecase.GetPaymentFromOrderId(c, orderId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			rb.Response(http.StatusNotFound, err.Error(), nil)
@@ -55,7 +55,7 @@ func (h *PaymentHandler) Post(c *gin.Context) {
 		Amount:  ppDTO.Amount,
 	}
 
-	if err := h.PaymentUsecase.CreatePayment(&payment); err != nil {
+	if err := h.PaymentUsecase.CreatePayment(c, &payment); err != nil {
 		rb.Response(http.StatusInternalServerError, err.Error(), nil)
 
 		return

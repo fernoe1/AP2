@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,10 +11,14 @@ import (
 	"time"
 
 	DB "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/gorm"
-	SERVER "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http/server"
-	"github.com/fernoe1/AP2/assignment-1/payment/internal/route"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/grpc"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/grpc/service"
+	SERVER "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http/route"
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/usecase"
 	"github.com/fernoe1/AP2/assignment-1/payment/migration"
+	paymentsvc "github.com/fernoe1/protogen/ap2-assign2/service/payment"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -39,6 +44,21 @@ func Start() {
 
 	// server
 	srv := SERVER.InitServer(":8082", r)
+	grpcSrv := grpc.InitServer()
+
+	lis, err := net.Listen("tcp", os.Getenv("GRPC_SRV_ADDR"))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	paymentsvc.RegisterPaymentServiceServer(grpcSrv, &service.PaymentService{UC: &paymentUsecase})
+
+	reflection.Register(grpcSrv)
+
+	log.Println("gRPC server listening on" + os.Getenv("GRPC_SRV_ADDR"))
+	if err := grpcSrv.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 
 	start(&srv)
 }

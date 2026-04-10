@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,11 +11,17 @@ import (
 	"time"
 
 	DB "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/gorm"
-	CLIENT "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/client"
-	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/server"
-	"github.com/fernoe1/AP2/assignment-1/order/internal/route"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/grpc"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/grpc/service"
+	HTTP "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/route"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/usecase"
 	"github.com/fernoe1/AP2/assignment-1/order/migration"
+	GRPC "github.com/fernoe1/AP2/assignment-1/order/pkg/grpc"
+	"github.com/fernoe1/AP2/assignment-1/order/pkg/nats"
+	ordersvc "github.com/fernoe1/protogen/ap2-assign2/service/order"
+	svc "github.com/fernoe1/protogen/ap2-assign2/service/payment"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -28,21 +35,47 @@ func Start() {
 	}
 	migration.Migrate(db)
 
+	// nats
+	nc := nats.InitNATSConn()
+
 	// repository
-	orderRepository := DB.OrderRepository{Db: db}
+	orderRepository := DB.OrderRepository{Db: db, Nc: nc}
 
 	// client
-	client := CLIENT.InitClient()
+	// client := HTTP.InitClient()
+	grpcConn, err := GRPC.InitGRPCConn(os.Getenv("GRPC_PAYMENT_SRV_ADDR"))
+	if err != nil {
+		log.Fatalf("failed to connect to payment service: %v", err)
+	}
+
+	grpcClient := grpc.InitClient(svc.NewPaymentServiceClient(grpcConn))
 
 	// usecase
-	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository, OrderClient: client}
+	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository, OrderClient: grpcClient}
 
 	// route
 	r := route.InitRoute()
 	route.RegisterOrderRoute(r, &orderUc)
 
 	// server
-	srv := server.InitServer(":8081", r)
+	srv := HTTP.InitServer(os.Getenv("HTTP_SRV_ADDR"), r)
+	grpcSrv := grpc.InitServer()
+
+	lis, err := net.Listen("tcp", os.Getenv("GRPC_SRV_ADDR"))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	ordersvc.RegisterOrderServiceServer(grpcSrv, &service.OrderService{Nc: nc})
+
+	reflection.Register(grpcSrv)
+
+	go func() {
+		log.Println("gRPC server listening on" + os.Getenv("GRPC_SRV_ADDR"))
+		if err := grpcSrv.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
 
 	start(&srv)
 }

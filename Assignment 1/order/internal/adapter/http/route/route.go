@@ -1,8 +1,8 @@
 package route
 
 import (
-	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/server/handler"
-	"github.com/fernoe1/AP2/assignment-1/order/internal/middleware"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/handler"
+	"github.com/fernoe1/AP2/assignment-1/order/internal/adapter/http/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,4 +22,5 @@ func RegisterOrderRoute(r *gin.Engine, uc handler.OrderUsecase) {
 	orderRoute.POST("", orderHandler.Post)
 	orderRoute.GET("/:id", orderHandler.Get)
 	orderRoute.PATCH("/:id/cancel", orderHandler.Patch)
+	orderRoute.PATCH("/:id", orderHandler.PatchStatus)
 }
