@@ -56,9 +56,11 @@ func Start() {
 	reflection.Register(grpcSrv)
 
 	log.Println("gRPC server listening on" + os.Getenv("GRPC_SRV_ADDR"))
-	if err := grpcSrv.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	go func() {
+		if err := grpcSrv.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
 
 	start(&srv)
 }
