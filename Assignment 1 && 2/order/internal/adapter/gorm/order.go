@@ -2,10 +2,8 @@ package gorm
 
 import (
 	"context"
-	"encoding/json"
-	"strconv"
 
-	NATS "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/nats"
+	NATS "github.com/fernoe1/AP2/assignment-1/order/internal/adapter/nats/order"
 	"github.com/fernoe1/AP2/assignment-1/order/internal/domain"
 	"github.com/nats-io/nats.go"
 	"gorm.io/gorm"
@@ -38,17 +36,5 @@ func (r *OrderRepository) UpdateOrder(ctx context.Context, order *domain.Order) 
 		return err
 	}
 
-	event := NATS.OrderUpdatedEvent{
-		OrderID: strconv.Itoa(int(order.ID)),
-		Status:  order.Status,
-	}
-
-	data, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
-	subject := "orders.updated." + strconv.Itoa(int(order.ID))
-
-	return r.Nc.Publish(subject, data)
+	return NATS.PublishOrderUpdatedMessage(r.Nc, order)
 }

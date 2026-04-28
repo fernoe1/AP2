@@ -1,6 +1,6 @@
-package nats
+package order
 
-type OrderUpdatedEvent struct {
+type OrderUpdatedMessage struct {
 	OrderID string `json:"order_id"`
 	Status  string `json:"status"`
 }
