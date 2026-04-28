@@ -1,6 +1,6 @@
-package notification
+package payment
 
-type NotificationMessage struct {
+type PaymentCompletedMessage struct {
 	OrderID       string `json:"order_id"`
 	Amount        int64  `json:"amount"`
 	CustomerEmail string `json:"customer_email"`

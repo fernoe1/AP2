@@ -20,7 +20,7 @@ func Start() {
 
 	consumer := js.NotificationConsumer{
 		NotificationUsecase: notificationUsecase,
-		Processed:           make(map[uint]bool),
+		Processed:           make(map[string]bool),
 	}
 
 	consumer.ConsumeNotificationStream(nc)

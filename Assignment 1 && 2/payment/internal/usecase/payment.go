@@ -9,6 +9,7 @@ import (
 
 type PaymentUsecase struct {
 	PaymentRepository PaymentRepository
+	PaymentPublisher  PaymentPublisher
 }
 
 func (uc *PaymentUsecase) GetPaymentFromOrderId(ctx context.Context, orderId string) ([]*domain.Payment, error) {
@@ -38,5 +39,5 @@ func (uc *PaymentUsecase) CreatePayment(ctx context.Context, payment *domain.Pay
 		return err
 	}
 
-	return nil
+	return uc.PaymentPublisher.PublishPaymentCompleted(ctx, payment)
 }

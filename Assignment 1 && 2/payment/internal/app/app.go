@@ -15,9 +15,12 @@ import (
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/grpc/service"
 	SERVER "github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http"
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/http/route"
+	"github.com/fernoe1/AP2/assignment-1/payment/internal/adapter/nats/payment"
 	"github.com/fernoe1/AP2/assignment-1/payment/internal/usecase"
 	"github.com/fernoe1/AP2/assignment-1/payment/migration"
+	"github.com/fernoe1/AP2/assignment-1/payment/pkg/nats"
 	paymentsvc "github.com/fernoe1/protogen/ap2-assign2/service/payment"
+	"github.com/nats-io/nats.go/jetstream"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -35,8 +38,23 @@ func Start() {
 	// repository
 	paymentRepository := DB.PaymentRepository{Db: db}
 
+	// nats
+	nc := nats.InitNATSConn()
+
+	// js
+	js, err := jetstream.New(nc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// pp
+	pp := payment.PaymentPublisher{Js: js}
+
 	// usecase
-	paymentUsecase := usecase.PaymentUsecase{PaymentRepository: &paymentRepository}
+	paymentUsecase := usecase.PaymentUsecase{
+		PaymentRepository: &paymentRepository,
+		PaymentPublisher:  &pp,
+	}
 
 	// route
 	r := route.InitRoute()

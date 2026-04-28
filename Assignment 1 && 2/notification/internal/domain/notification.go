@@ -1,7 +1,7 @@
 package domain
 
 type Notification struct {
-	ID            uint
+	ID            string
 	Amount        int64
 	CustomerEmail string
 	Status        string

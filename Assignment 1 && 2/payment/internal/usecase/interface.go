@@ -11,3 +11,7 @@ type PaymentRepository interface {
 	UpdatePayment(ctx context.Context, payment *domain.Payment) error
 	FetchPaymentByOrderId(ctx context.Context, orderId string) ([]*domain.Payment, error)
 }
+
+type PaymentPublisher interface {
+	PublishPaymentCompleted(ctx context.Context, payment *domain.Payment) error
+}

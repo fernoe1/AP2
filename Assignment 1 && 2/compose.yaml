@@ -28,6 +28,7 @@ services:
     build: ./order
     depends_on:
       - order-db
+      - nats
     environment:
       HTTP_SRV_ADDR: :8081
       GRPC_SRV_ADDR: 0.0.0.0:50051
@@ -41,8 +42,14 @@ services:
     build: ./payment
     depends_on:
       - payment-db
+      - nats
     environment:
       GRPC_SRV_ADDR: 0.0.0.0:50052
     ports:
       - "8082:8082"
       - "50052:50052"
+
+  notification:
+    build: ./notification
+    depends_on:
+      - nats

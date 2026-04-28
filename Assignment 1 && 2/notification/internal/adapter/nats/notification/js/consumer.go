@@ -14,7 +14,7 @@ import (
 
 type NotificationConsumer struct {
 	NotificationUsecase usecase.NotificationUsecase
-	Processed           map[uint]bool
+	Processed           map[string]bool
 }
 
 func (c *NotificationConsumer) ConsumeNotificationStream(nc *nats.Conn) {

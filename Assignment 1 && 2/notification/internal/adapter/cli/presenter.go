@@ -15,7 +15,7 @@ func (c Presenter) Send(ctx context.Context, notification *domain.Notification) 
 		return ctx.Err()
 	}
 
-	fmt.Printf("[Notification] Sent email to %s for Order #%d. Amount: $%d\n",
+	fmt.Printf("[Notification] Sent email to %s for Order #%s. Amount: $%d\n",
 		notification.CustomerEmail, notification.ID, notification.Amount)
 
 	return nil
