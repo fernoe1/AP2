@@ -2,14 +2,21 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/fernoe1/AP2/assignment-1/order/internal/domain"
+	"github.com/redis/go-redis/v9"
 )
 
 type OrderUsecase struct {
 	OrderRepository OrderRepository
 	OrderClient     OrderClient
+	RDB             *redis.Client
+	TTL             time.Duration
 }
 
 func (uc *OrderUsecase) CreateOrder(ctx context.Context, order *domain.Order) error {
@@ -28,7 +35,32 @@ func (uc *OrderUsecase) CreateOrder(ctx context.Context, order *domain.Order) er
 }
 
 func (uc *OrderUsecase) GetOrder(ctx context.Context, id uint) (*domain.Order, error) {
-	return uc.OrderRepository.FetchOrder(ctx, id)
+	key := strconv.Itoa(int(id))
+
+	cached, err := uc.RDB.Get(ctx, key).Result()
+
+	if err == nil {
+		var order domain.Order
+		if err := json.Unmarshal([]byte(cached), &order); err == nil {
+			return &order, nil
+		}
+	}
+
+	if !errors.Is(err, redis.Nil) && err != nil {
+		fmt.Printf("redis get failed: %v\n", err)
+	}
+
+	order, err := uc.OrderRepository.FetchOrder(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	raw, err := json.Marshal(&order)
+	if err == nil {
+		_ = uc.RDB.Set(ctx, key, raw, uc.TTL).Err()
+	}
+
+	return order, nil
 }
 
 func (uc *OrderUsecase) CancelOrder(ctx context.Context, id uint) (*domain.Order, error) {
@@ -57,5 +89,13 @@ func (uc *OrderUsecase) UpdateStatus(ctx context.Context, order *domain.Order, s
 		order.Status = "Failed"
 	}
 
-	return uc.OrderRepository.UpdateOrder(ctx, order)
+	if err := uc.OrderRepository.UpdateOrder(ctx, order); err != nil {
+		return err
+	}
+
+	if err := uc.RDB.Del(ctx, strconv.Itoa(int(order.ID))).Err(); err != nil {
+		fmt.Printf("redis del failed: %v\n", err)
+	}
+
+	return nil
 }

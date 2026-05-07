@@ -9,3 +9,9 @@ import (
 type EmailPresenter interface {
 	Send(ctx context.Context, notification *domain.Notification) error
 }
+
+type NotificationStatusRepository interface {
+	IsProcessed(ctx context.Context, paymentID string) (bool, error)
+	MarkProcessed(ctx context.Context, paymentID string) error
+	MarkFailed(ctx context.Context, paymentID string) error
+}

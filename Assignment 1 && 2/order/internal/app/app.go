@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/fernoe1/AP2/assignment-1/order/migration"
 	GRPC "github.com/fernoe1/AP2/assignment-1/order/pkg/grpc"
 	"github.com/fernoe1/AP2/assignment-1/order/pkg/nats"
+	"github.com/fernoe1/AP2/assignment-1/order/pkg/redis"
 	ordersvc "github.com/fernoe1/protogen/ap2-assign2/service/order"
 	svc "github.com/fernoe1/protogen/ap2-assign2/service/payment"
 	"google.golang.org/grpc/reflection"
@@ -38,6 +40,9 @@ func Start() {
 	// nats
 	nc := nats.InitNATSConn()
 
+	// redis
+	rdb := redis.InitRDBConn()
+
 	// repository
 	orderRepository := DB.OrderRepository{Db: db, Nc: nc}
 
@@ -51,7 +56,8 @@ func Start() {
 	grpcClient := grpc.InitClient(svc.NewPaymentServiceClient(grpcConn))
 
 	// usecase
-	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository, OrderClient: grpcClient}
+	ttl, _ := strconv.Atoi(os.Getenv("TTL"))
+	orderUc := usecase.OrderUsecase{OrderRepository: &orderRepository, OrderClient: grpcClient, RDB: rdb, TTL: time.Second * time.Duration(ttl)}
 
 	// route
 	r := route.InitRoute()

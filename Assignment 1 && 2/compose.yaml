@@ -6,6 +6,11 @@ services:
       - "8222:8222"
     command: [ "-js", "-m", "8222" ]
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
   order-db:
     image: postgres:15
     environment:
@@ -33,6 +38,8 @@ services:
       HTTP_SRV_ADDR: :8081
       GRPC_SRV_ADDR: 0.0.0.0:50051
       GRPC_PAYMENT_SRV_ADDR: payment:50052
+      MAX_RETRIES: 3
+      TTL: 5
     ports:
       - "8081:8081"
       - "50051:50051"
@@ -51,5 +58,11 @@ services:
 
   notification:
     build: ./notification
+    environment:
+      MAX_RETRIES: 3
+      TTL: 5
+      MAILJET_API_KEY:
+      MAILJET_API_SECRET:
+      MAILJET_FROM_EMAIL:
     depends_on:
       - nats

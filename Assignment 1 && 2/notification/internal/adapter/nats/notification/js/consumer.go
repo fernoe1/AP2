@@ -7,14 +7,13 @@ import (
 
 	"github.com/fernoe1/AP2/assignment-1/notification/internal/adapter/nats/notification"
 	"github.com/fernoe1/AP2/assignment-1/notification/internal/domain"
-	"github.com/fernoe1/AP2/assignment-1/notification/internal/usecase"
+	"github.com/fernoe1/AP2/assignment-1/notification/internal/job"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 )
 
 type NotificationConsumer struct {
-	NotificationUsecase usecase.NotificationUsecase
-	Processed           map[string]bool
+	Worker *job.Worker
 }
 
 func (c *NotificationConsumer) ConsumeNotificationStream(nc *nats.Conn) {
@@ -52,19 +51,16 @@ func (c *NotificationConsumer) ConsumeNotificationStream(nc *nats.Conn) {
 			continue
 		}
 
-		if c.Processed[notificationMsg.OrderID] {
-			_ = msg.Ack()
-			continue
-		}
-
-		c.NotificationUsecase.Send(context.Background(), &domain.Notification{
+		err = c.Worker.Enqueue(context.Background(), domain.Notification{
 			ID:            notificationMsg.OrderID,
 			Amount:        notificationMsg.Amount,
 			CustomerEmail: notificationMsg.CustomerEmail,
 			Status:        notificationMsg.Status,
 		})
-
-		c.Processed[notificationMsg.OrderID] = true
+		if err != nil {
+			log.Printf("failed to enqueue notification: %v", err)
+			continue
+		}
 
 		_ = msg.Ack()
 	}
