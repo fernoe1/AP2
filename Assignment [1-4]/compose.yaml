@@ -61,8 +61,8 @@ services:
     environment:
       MAX_RETRIES: 3
       TTL: 5
-      MAILJET_API_KEY:
-      MAILJET_API_SECRET:
-      MAILJET_FROM_EMAIL:
+      MAILJET_API_KEY: 3542fb17a39f15c68e1b1f72fb39201d
+      MAILJET_API_SECRET: ce0607a36ef3feb74346ca7df9609ec2
+      MAILJET_FROM_EMAIL: krutoytemirlan2007@gmail.com
     depends_on:
       - nats
