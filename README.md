@@ -1,2 +1,2 @@
 # 29.03.2026 - ??.??.2026
-### [Download assignment one/two](https://download-directory.github.io/?url=https://github.com/fernoe1/AP2/tree/main/Assignment%201%20%26%26%202)
+### [Download assignment [1-4]](https://download-directory.github.io/?url=https://github.com/fernoe1/AP2/tree/main/Assignment%20%5B1-4%5D)
